@@ -19,7 +19,7 @@ unsigned char speaker;
 
 enum ThreeStates{start, zero, one, two} Three_State;
 enum OneState{init, off, on} One_State;
-enum SpeakerState{isa, loud, quiet} Speaker_State;
+enum SpeakerState{isa, loud, quiet, wait} Speaker_State;
 enum CombinedStates{begin, transmit} Combined_State;
 
 void TickSpeaker(){
@@ -27,19 +27,24 @@ void TickSpeaker(){
 	btn = ~PINA & 0x01;
 	switch(Speaker_State){
 		case isa:
-			Speaker_State = quiet;
+			Speaker_State = wait;
 			speaker = 0;
 			break;
+		case wait:
+			Speaker_State = btn ? loud : wait;
+			break;
 		case quiet:
-			Speaker_State = btn ? loud : quiet;
+			Speaker_State = !btn ? loud : wait;
 			break;
 		case loud:
-			Speaker_State = !btn ? quiet : loud;
+			Speaker_State = !btn ? quiet : wait;
 			break;
 	}
 	switch(Speaker_State){
 		case isa:
 			break;
+		case wait:
+			speaker = 0;
 		case quiet:
 			speaker = 0;
 			break;
